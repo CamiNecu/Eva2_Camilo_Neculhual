@@ -26,6 +26,7 @@ document.getElementById("studentForm").addEventListener("submit",function(e){
 
     actualizarTabla(); // actualiza toda la tabla
     calcularPromedio();
+    actualizarEstadisticas(); 
     this.reset();
 });
 
@@ -64,6 +65,7 @@ function deleteEstudiante(student,row){
         students.splice(index,1);
         row.remove();
         calcularPromedio();
+        actualizarEstadisticas(); 
        
     }
 }
@@ -89,4 +91,17 @@ function calcularPromedio(){
     const prom=total/students.length;
 
     averageDiv.textContent="Promedio General del Curso : "+prom.toFixed(2)
+}
+
+function actualizarEstadisticas() {
+    const total = students.length;
+    const aprobados = students.filter(student => student.grade >= 4).length;
+    const reprobados = students.filter(student => student.grade < 4).length;
+
+    const statsDiv = document.getElementById("stats");
+    statsDiv.innerHTML = `
+        <p>Total de estudiantes: ${total}</p>
+        <p>Cantidad de aprobados: ${aprobados}</p>
+        <p>Cantidad de reprobados: ${reprobados}</p>
+    `;
 }
