@@ -2,6 +2,8 @@ const students=[]
 const tableBody=document.querySelector("#studentsTable tbody");
 const averageDiv=document.getElementById("average");
 
+let studentEditingIndex = null;
+
 document.getElementById("studentForm").addEventListener("submit",function(e){
     e.preventDefault();
 
@@ -14,17 +16,25 @@ document.getElementById("studentForm").addEventListener("submit",function(e){
         return
     }
 
-    const student={name,lastName,grade};
+ if (studentEditingIndex !== null) {
+        students[studentEditingIndex] = { name, lastName, grade };
+        studentEditingIndex = null; // salir del modo edición
+    } else {
+        const student = { name, lastName, grade };
+        students.push(student);
+    }
 
-    students.push(student);
-    console.log(students)
-
-//Este comando Ejecuta las Funciones y luego Borra la Consola
-addStudentToTable(student);
-calcularPromedio();
-    this.reset()
-
+    actualizarTabla(); // actualiza toda la tabla
+    calcularPromedio();
+    this.reset();
 });
+
+function actualizarTabla() {
+    tableBody.innerHTML = ""; // borrar todo
+    students.forEach((student) => {
+        addStudentToTable(student);
+    });
+}
 
 //Funcion para Que los datos se pongan en la tabla
 function addStudentToTable(student){
@@ -32,10 +42,42 @@ function addStudentToTable(student){
     row.innerHTML=`
     <td>${student.name}</td>
     <td>${student.lastName}</td>
-    <td>${student.grade}</td>`;
+    <td>${student.grade}</td>
+    <td><button class="delete-btm">Eliminar</button>
+        <button class="editar-btm">Editar</button></td>`;
 
+//Se Agrega boton delete para eliminar datos
+    row.querySelector(".delete-btm").addEventListener("click",function(){
+        deleteEstudiante(student,row);
+    });
+    row.querySelector(".editar-btm").addEventListener("click",function(){
+        editarEstudiante(student,row);
+    });
+    
     tableBody.appendChild(row);
 }
+
+//funcion para eliminar estudiante
+function deleteEstudiante(student,row){
+    const index=students.indexOf(student);
+    if(index>-1){
+        students.splice(index,1);
+        row.remove();
+        calcularPromedio();
+       
+    }
+}
+
+function editarEstudiante(student) {
+    const index = students.indexOf(student);
+    if (index > -1) {
+        document.getElementById("name").value = student.name;
+        document.getElementById("lastName").value = student.lastName;
+        document.getElementById("grade").value = student.grade;
+        studentEditingIndex = index;
+    }
+}
+
 
 //funcion para calcular el promedio de notas
 function calcularPromedio(){
